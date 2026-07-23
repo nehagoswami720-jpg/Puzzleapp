@@ -8,8 +8,8 @@ confused with a bug in a puzzle.
 | Phase | What | Status |
 |---|---|---|
 | 0 | Scaffold + `/dev` harness | ✅ Complete |
-| 1 | Four mechanics working in isolation | ⬜ Next |
-| 2 | Prompt → puzzles pipeline | ⬜ |
+| 1 | Four mechanics working in isolation | ✅ Complete |
+| 2 | Prompt → puzzles pipeline | ⬜ Next |
 | 3 | Play polish, feedback, mobile + PWA | ⬜ |
 | 4 | Expand the library, persist progress | ⬜ |
 
@@ -67,31 +67,58 @@ Real touch-drag on a physical device. The pointer logic is verified through
 
 ---
 
-## Phase 1 — Four mechanics ⬜
+## Phase 1 — Four mechanics ✅
 
-Implement Zip and Sequence (procedural) and Spot-the-Fallacy and Context-Cloze
-(LLM), each with `generate()`, `grade()`, and a renderer, wired into `/dev`.
+Zip and Sequence (procedural) plus Spot-the-Fallacy and Context-Cloze (LLM),
+each with `generate()`, `grade()`, and a renderer, wired into `/dev`.
 
 **Acceptance:** `/dev` can generate and play each mechanic at all three
 difficulties; procedural instances are verified solvable; LLM instances are
-schema-valid; grading is correct.
+schema-valid; grading is correct. ✔
 
-Planned work:
+### What was built
 
-- `zip.ts` — lift `generateHamPath`, `placeCheckpoints`, `buildWalls`, and
-  `generatePuzzle` from the verified prototype and wrap them in the `Mechanic`
-  interface, adding the verify pass (solvable always; unique at medium/hard).
-- `sequence.ts` — pick a rule (arithmetic, geometric, alternating,
-  second-difference, Fibonacci-like) with seeded parameters, emit the terms, hide
-  the tail. `SequenceInput` renderer.
-- `lib/llm/client.ts` — the SDK wrapper, server-side only.
-- `lib/llm/generateInstance.ts` — tool use to force structured JSON, Zod
-  validation, retry ≤2, drop on failure.
-- `spotTheFallacy.ts` and `contextCloze.ts` on top of it, both reusing
-  `MultipleChoice`.
-- `/dev` becomes a picker: mechanic × difficulty → generate → play → grade.
+| Area | Detail |
+|---|---|
+| Zip | The prototype's `generateHamPath` / `snakePath` / `placeCheckpoints` / `buildWalls` ported unchanged, plus a bounded solver and a generate-then-verify loop that escalates wall density until the solution is unique. |
+| Sequence | Five rule families (arithmetic, geometric, alternating, quadratic, Fibonacci-like) with an *ambiguity* verifier — every candidate is re-fitted with every family, and rejected if another family fits the visible terms but predicts a different continuation. |
+| LLM layer | `client.ts` (server-only, with a runtime guard) and `generateInstance.ts` — forced tool use, Zod validation, retry ≤2 with the validation error fed back, then `ContentFillError` so the caller drops the mechanic. Light content screen on generated text. |
+| Fallacy / Cloze | Both fill the §9.3/§9.4 schemas and reuse `MultipleChoice`. Cloze adds cross-field refinements: exactly one blank, `options[correctIndex] === targetWord`, four distinct options. |
+| Boundary | `procedural.ts` (client-safe) vs `server.ts` (registers all four, pulls in `lib/llm`). API routes `/api/dev/catalog` and `/api/dev/generate`. |
+| Harness | `/dev` is now mechanic × difficulty × prompt → generate → play → grade. Procedural generates in the browser; LLM goes through the API. |
 
-**The generation pipeline does not start until this phase passes.**
+### Verification
+
+**Zip**, 40 boards per difficulty:
+
+| | solvable | unique | wall conflicts | checkpoint order | speed |
+|---|---|---|---|---|---|
+| easy | 40/40 | 19/40 *(not required)* | 0 | 0 bad | 5ms |
+| medium | 40/40 | **40/40** | 0 | 0 bad | 1ms |
+| hard | 40/40 | **40/40** | 0 | 0 bad | 26ms |
+
+**Sequence**, 200 per difficulty: 0 ambiguous out of 600, 0 malformed, no
+fallbacks needed, all five rule families exercised. Both generators are
+deterministic from a seed.
+
+**LLM**, 18 live generations (2 mechanics × 3 difficulties × 3): 18/18
+schema-valid, correct grading both ways, no answer key in client-visible
+content, 5–7s each. Seven deliberately malformed payloads were all rejected by
+the schemas.
+
+**Boundary:** 14 client chunks scanned — zero occurrences of `sk-ant`,
+`ANTHROPIC_API_KEY`, `anthropic-ai`, or the generation prompts.
+
+### Known gaps, carried into Phase 2
+
+- **Multiple-choice answers still ship to the client.** `/api/dev/generate`
+  returns the whole instance including `solution` so the harness can grade
+  locally. Phase 2 should strip `solution` for content-matched mechanics and
+  grade them through `/api/grade`.
+- **Latency is the hosting risk.** ~6s per LLM mechanic means a serial Phase 2
+  fan-out of three would approach the function limit. Generate in parallel.
+- **Zip uniqueness at easy is incidental** (19/40) — by design, `requireUnique`
+  is off there.
 
 ---
 

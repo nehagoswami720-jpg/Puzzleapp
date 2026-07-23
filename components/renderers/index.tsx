@@ -2,6 +2,7 @@
 
 import type { RendererProps } from '@/lib/mechanics/types';
 import MultipleChoice from './MultipleChoice';
+import SequenceInput from './SequenceInput';
 import ZipBoard from './ZipBoard';
 
 /**
@@ -18,7 +19,12 @@ import ZipBoard from './ZipBoard';
 type AnyRendererProps = RendererProps<any, any>;
 
 /** Mechanic ids that have a renderer wired up. */
-export const RENDERED_MECHANICS = ['zip', 'spot-the-fallacy', 'context-cloze'] as const;
+export const RENDERED_MECHANICS = [
+  'zip',
+  'sequence',
+  'spot-the-fallacy',
+  'context-cloze',
+] as const;
 
 export function hasRenderer(mechanicId: string): boolean {
   return (RENDERED_MECHANICS as readonly string[]).includes(mechanicId);
@@ -28,6 +34,8 @@ export default function MechanicRenderer(props: AnyRendererProps) {
   switch (props.instance.mechanicId) {
     case 'zip':
       return <ZipBoard {...props} />;
+    case 'sequence':
+      return <SequenceInput {...props} />;
     // One MultipleChoice serves every option-picking LLM mechanic (§9.5).
     case 'spot-the-fallacy':
     case 'context-cloze':

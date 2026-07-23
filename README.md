@@ -57,9 +57,10 @@ random.
 
 ## Status
 
-**Phase 0 complete.** Scaffold plus a `/dev` harness rendering and grading one
-hardcoded Zip board and one hardcoded multiple-choice puzzle. No generators are
-wired up yet; the mechanic registry is deliberately empty until Phase 1. See
+**Phase 1 complete.** Four mechanics generate and play at all three
+difficulties: **Zip** and **Number Sequence** (procedural, verified) and **Spot
+the Fallacy** and **Context Cloze** (LLM content-fill, schema-validated). Drive
+them from `/dev`. The prompt→puzzles pipeline is Phase 2. See
 [`docs/ROADMAP.md`](docs/ROADMAP.md) for what each phase covers.
 
 ## Stack
@@ -82,8 +83,8 @@ npm run dev
 - `http://localhost:3000` — home (placeholder until Phase 2)
 - `http://localhost:3000/dev` — the mechanic harness
 
-`ANTHROPIC_API_KEY` is only needed once the LLM mechanics land in Phase 1; the
-procedural ones and the Phase 0 harness run without it.
+`ANTHROPIC_API_KEY` is needed for the two LLM mechanics; Zip and Sequence
+generate locally with no network at all.
 
 ```bash
 npm run build     # production build (also typechecks)
@@ -96,6 +97,8 @@ npm run lint
 app/
   page.tsx                  home — chat input + gallery (Phase 2)
   dev/page.tsx              dev harness: instantiate and play any mechanic
+  api/dev/catalog           the trimmed catalog the /dev picker reads
+  api/dev/generate          one mechanic at one difficulty
   api/                      interpret · generate · grade (Phase 2)
 lib/
   config.ts                 model constant, env access
@@ -104,13 +107,19 @@ lib/
     types.ts                Mechanic, PuzzleInstance, SkillContext, GradeResult
     subskills.ts            the controlled sub-skill vocabulary
     index.ts                the registry — id → Mechanic
-    zip.ts                  procedural
+    zip.ts                  procedural — generator, solver, verify loop
+    sequence.ts             procedural — five rule families + ambiguity check
+    spotTheFallacy.ts       llm content-fill
+    contextCloze.ts         llm content-fill
     multipleChoice.ts       shared pieces for the option-picking mechanics
-  llm/                      SDK wrapper, content-fill + validate, judge (Phase 1)
-  dev/fixtures.ts           hardcoded instances for the harness
+    procedural.ts           client-safe mechanic set
+    server.ts               registers all four (server only)
+  llm/
+    client.ts               Anthropic SDK wrapper, server-only
+    generateInstance.ts     forced tool use + Zod validate + retry
 components/
   PlayCard.tsx              renderer + submit + feedback
-  renderers/                ZipBoard, MultipleChoice, and the id → renderer switch
+  renderers/                ZipBoard, SequenceInput, MultipleChoice + the id → renderer switch
 ```
 
 Renderers live outside `lib/mechanics/` on purpose: generators and graders stay
