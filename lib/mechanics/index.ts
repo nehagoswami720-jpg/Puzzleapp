@@ -35,6 +35,7 @@ export function catalog(): CatalogEntry[] {
     subSkills: m.subSkills,
     engine: m.engine,
     matchMode: m.matchMode,
+    answerType: m.answerType,
     difficulties: m.difficulties,
   }));
 }

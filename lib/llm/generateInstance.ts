@@ -148,12 +148,14 @@ export async function fillContent<T>(args: ContentFillArgs<T>): Promise<T> {
 
     const parsed = schema.safeParse(toolInput);
     if (!parsed.success) {
-      failures.push(
-        parsed.error.issues
-          .slice(0, 4)
-          .map((i) => `${i.path.join('.') || 'root'}: ${i.message}`)
-          .join('; '),
-      );
+      const detail = parsed.error.issues
+        .slice(0, 4)
+        .map((i) => `${i.path.join('.') || 'root'}: ${i.message}`)
+        .join('; ');
+      // Each retry costs a full round trip, so a recurring failure here is a
+      // latency bug, not just a quality one — surface it rather than absorb it.
+      console.warn(`[${toolName}] attempt ${attempt + 1} failed validation: ${detail}`);
+      failures.push(detail);
       continue;
     }
 

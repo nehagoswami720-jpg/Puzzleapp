@@ -9,8 +9,8 @@ confused with a bug in a puzzle.
 |---|---|---|
 | 0 | Scaffold + `/dev` harness | ✅ Complete |
 | 1 | Four mechanics working in isolation | ✅ Complete |
-| 2 | Prompt → puzzles pipeline | ⬜ Next |
-| 3 | Play polish, feedback, mobile + PWA | ⬜ |
+| 2 | Prompt → puzzles pipeline | ✅ Complete |
+| 3 | Play polish, feedback, mobile + PWA | ⬜ Next |
 | 4 | Expand the library, persist progress | ⬜ |
 
 ---
@@ -122,14 +122,71 @@ the schemas.
 
 ---
 
-## Phase 2 — Prompt → puzzles pipeline ⬜
+## Phase 2 — Prompt → puzzles pipeline ✅
 
-`interpret` + `select` + `generate`, and the chat input → option gallery → play
-flow.
+`interpret` + `select` + `generate` behind one `/api/generate` call, and the
+chat input → option gallery → play loop on the home page.
 
 **Acceptance:** *"improve my vocabulary"* returns word puzzles; *"improve my
 planning / logical reasoning"* returns Zip and sequences; each card shows what it
-trains; the full loop works end to end.
+trains; the full loop works end to end. ✔
+
+### What was built
+
+| Area | Detail |
+|---|---|
+| Planner | One model call interpreting the skill **and** selecting mechanics (§10 permits combining them; one round trip is the difference between a comfortable wait and a timeout). The `mechanicId` field is a Zod enum built from the live catalog, so the core invariant — the LLM can't invent a game type — is enforced *structurally*, not by instruction. |
+| Selector | `rankMechanics` (deterministic tag-overlap, the no-model fallback) and `enforceVariety` (§10's two rules, applied to whatever produced the shortlist). Variety is measured by `answerType` — two puzzles answered the same way are the same interaction twice, whatever their subject. |
+| Pipeline | `promptToPuzzles`: plan, then generate in **parallel**. `Promise.allSettled` gives §10's fall-through free — a failed mechanic is dropped and a next-ranked one generated in its place. One round of backfill only. |
+| API | `POST /api/generate { prompt }` → `{ skillContext, instances, diagnostics }`, `maxDuration` 90. |
+| UI | `ChatInput` (three seeded prompts), `OptionGallery` + `SkeletonCards`, and a home page that runs home → loading → gallery → play, with a clarify bubble and a *New skill* reset. |
+
+### Verification
+
+Routing, three acceptance prompts, planner succeeding (no fallback):
+
+| Prompt | Set (lead card first) |
+|---|---|
+| improve my vocabulary | **context-cloze** (easy) · zip · sequence |
+| improve my planning | **zip** (easy) · sequence · spot-the-fallacy |
+| improve my logical reasoning | **spot-the-fallacy** (easy) · sequence · zip |
+
+The content-matched mechanic leads and is the easy win every time. End-to-end
+~10–19s, no drops, no answer-key leak in `content`. The selector was unit-tested
+with no model in the loop: correct leads, the answer-type variety cap holding,
+and a hallucinated `chess` id dropped and backfilled to three. Client bundle:
+12 chunks, zero occurrences of the SDK, the key, or the planner prompt.
+
+### A bug worth remembering
+
+The planner first fell back on two of three prompts. Cause: when the model chose
+to clarify, it wrote a question over the 200-char cap **and** returned fewer than
+three selections — both violated the schema, so it burned every retry and
+dropped to the tag-overlap fallback on exactly the inputs the planner handles
+best. The silent `catch` hid it. Fix: log the fallback reason, log validation
+failures (each retry is a full round trip, so a recurring one is a latency bug,
+not just a quality one), raise the question cap, and floor `selections` at 0 —
+`enforceVariety` guarantees ≥3 for the play path, and the clarify path returns
+before generation, so a short list there is harmless.
+
+### Decisions and known gaps, carried into Phase 3
+
+- **Exact multiple-choice grades client-side, by design.** §11 permits shipping
+  the solution for `exact`/`path`/`grid` answer types where spoiling isn't a
+  concern. With no score, streak, or leaderboard in MVP, a peekable answer only
+  affects the learner. `/api/grade` lands in Phase 4 with the first `open`
+  rubric mechanic, which genuinely needs server-side judging.
+- **The clarify flow is wired but rarely fires.** At `effort: low` the planner
+  is decisive enough to route even "get smarter" rather than ask. Phase 3's
+  acceptance ("a vague prompt triggers exactly one clarifying question") will
+  need prompt tuning to make it fire when it should.
+- **Small-catalog padding.** With four mechanics, a set of 3–4 always uses most
+  of the catalog, so vocabulary gets a Zip alongside the cloze. The matched
+  mechanic always leads; the padding resolves in Phase 4 when word-matched
+  mechanics (synonym match, odd-one-out, analogy) exist.
+- **Latency is the deploy risk, now measured** at ~10–19s. Parallel generation
+  keeps it under the function limit; a bigger catalog or a slower planner would
+  make streaming the cards in worthwhile.
 
 ---
 

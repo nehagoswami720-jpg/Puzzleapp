@@ -57,10 +57,12 @@ random.
 
 ## Status
 
-**Phase 1 complete.** Four mechanics generate and play at all three
-difficulties: **Zip** and **Number Sequence** (procedural, verified) and **Spot
-the Fallacy** and **Context Cloze** (LLM content-fill, schema-validated). Drive
-them from `/dev`. The prompt→puzzles pipeline is Phase 2. See
+**Phase 2 complete.** The full loop runs on the home page: type a skill →
+`/api/generate` interprets it, picks 3–4 mechanics from the catalog and
+generates them in parallel → option cards → play → grade. *"improve my
+vocabulary"* leads with a word puzzle, *"improve my planning"* leads with Zip,
+and every card shows what it trains. Play any mechanic in isolation at `/dev`.
+Try another / make it harder and the PWA layer are Phase 3. See
 [`docs/ROADMAP.md`](docs/ROADMAP.md) for what each phase covers.
 
 ## Stack
@@ -97,12 +99,14 @@ npm run lint
 app/
   page.tsx                  home — chat input + gallery (Phase 2)
   dev/page.tsx              dev harness: instantiate and play any mechanic
+  api/generate              prompt → interpret + select + generate (parallel)
   api/dev/catalog           the trimmed catalog the /dev picker reads
   api/dev/generate          one mechanic at one difficulty
-  api/                      interpret · generate · grade (Phase 2)
 lib/
   config.ts                 model constant, env access
   rng.ts                    seeded PRNG (mulberry32)
+  select.ts                 tag-overlap ranking + variety rules (no model)
+  pipeline.ts               prompt → puzzles, parallel generation + fall-through
   mechanics/
     types.ts                Mechanic, PuzzleInstance, SkillContext, GradeResult
     subskills.ts            the controlled sub-skill vocabulary
@@ -117,7 +121,10 @@ lib/
   llm/
     client.ts               Anthropic SDK wrapper, server-only
     generateInstance.ts     forced tool use + Zod validate + retry
+    planner.ts              interpret + select in one call (catalog-bound schema)
 components/
+  ChatInput.tsx             skill prompt + seeded examples
+  OptionGallery.tsx         option cards + loading skeletons
   PlayCard.tsx              renderer + submit + feedback
   renderers/                ZipBoard, SequenceInput, MultipleChoice + the id → renderer switch
 ```

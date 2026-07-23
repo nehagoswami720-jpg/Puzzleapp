@@ -96,6 +96,8 @@ export interface CatalogEntry {
   subSkills: SubSkill[];
   engine: Engine;
   matchMode: MatchMode;
+  /** how the puzzle is answered — selection uses this to enforce variety */
+  answerType: AnswerType;
   difficulties: Difficulty[];
 }
 
