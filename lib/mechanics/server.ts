@@ -4,12 +4,15 @@
  * Importing this pulls in `lib/llm/*`, so it may only be reached from API
  * routes. Client code uses `procedural.ts` instead.
  */
+import { anagramMechanic } from './anagram';
 import { connectionsMechanic } from './connectionsMechanic';
 import { contextClozeMechanic } from './contextCloze';
 import { register } from './index';
+import { MC_EXTRA_MECHANICS } from './mcExtra';
 import { oddOneOutMechanic } from './oddOneOut';
 import { PROCEDURAL_MECHANICS } from './procedural';
 import { spotTheFallacyMechanic } from './spotTheFallacy';
+import { synonymMatchMechanic } from './synonymMatch';
 import { triviaMechanic } from './trivia';
 
 let bootstrapped = false;
@@ -27,6 +30,9 @@ export function registerAllMechanics(): void {
     triviaMechanic,
     oddOneOutMechanic,
     connectionsMechanic,
+    anagramMechanic,
+    synonymMatchMechanic,
+    ...MC_EXTRA_MECHANICS,
   ];
   for (const m of [...PROCEDURAL_MECHANICS, ...llm]) {
     register(m);

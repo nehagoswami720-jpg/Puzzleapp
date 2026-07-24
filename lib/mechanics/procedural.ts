@@ -5,7 +5,10 @@
  * they can run in the browser — which is also what makes offline play possible
  * later (§18). This module must stay free of any `lib/llm/*` import.
  */
+import { makeTargetMechanic } from './makeTarget';
+import { mazeMechanic } from './maze';
 import { memoryMechanic } from './memory';
+import { mentalMathMechanic } from './mentalMath';
 import { sequenceMechanic } from './sequence';
 import { sudokuMechanic } from './sudoku';
 import type { Mechanic } from './types';
@@ -17,6 +20,9 @@ export const PROCEDURAL_MECHANICS: Mechanic<any, any, any>[] = [
   sequenceMechanic,
   sudokuMechanic,
   memoryMechanic,
+  mentalMathMechanic,
+  makeTargetMechanic,
+  mazeMechanic,
 ];
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

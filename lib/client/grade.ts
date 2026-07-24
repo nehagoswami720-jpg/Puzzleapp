@@ -8,8 +8,10 @@
  * modules, dispatched here by mechanic id.
  */
 import { gradeConnections } from '@/lib/mechanics/connections';
+import { gradeMatch } from '@/lib/mechanics/matching';
 import { gradeMultipleChoice } from '@/lib/mechanics/multipleChoice';
 import { getProceduralMechanic } from '@/lib/mechanics/procedural';
+import { gradeAnagram } from '@/lib/mechanics/textInput';
 import type { GradeResult, PuzzleInstance } from '@/lib/mechanics/types';
 
 export async function gradeInstance(
@@ -23,6 +25,10 @@ export async function gradeInstance(
   switch (instance.mechanicId) {
     case 'connections':
       return gradeConnections(instance, answer as string[][]);
+    case 'anagram':
+      return gradeAnagram(instance, answer as string);
+    case 'synonym-match':
+      return gradeMatch(instance, answer as Record<number, number>);
     // Every other LLM mechanic renders as multiple choice.
     default:
       return gradeMultipleChoice(instance, answer as number);

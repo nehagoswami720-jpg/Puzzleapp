@@ -2,10 +2,13 @@
 
 import type { RendererProps } from '@/lib/mechanics/types';
 import ConnectionsBoard from './ConnectionsBoard';
+import MatchPairs from './MatchPairs';
+import MazeBoard from './MazeBoard';
 import MemoryGrid from './MemoryGrid';
 import MultipleChoice from './MultipleChoice';
 import SequenceInput from './SequenceInput';
 import SudokuGrid from './SudokuGrid';
+import TextInput from './TextInput';
 import ZipBoard from './ZipBoard';
 
 /**
@@ -32,6 +35,17 @@ export const RENDERED_MECHANICS = [
   'connections',
   'sudoku',
   'memory',
+  'verbal-analogy',
+  'hidden-assumption',
+  'what-follows',
+  'real-word',
+  'estimation',
+  'what-comes-next',
+  'anagram',
+  'mental-math',
+  'make-target',
+  'synonym-match',
+  'maze',
 ] as const;
 
 export function hasRenderer(mechanicId: string): boolean {
@@ -50,11 +64,25 @@ export default function MechanicRenderer(props: AnyRendererProps) {
       return <SudokuGrid {...props} />;
     case 'memory':
       return <MemoryGrid {...props} />;
+    case 'anagram':
+    case 'mental-math':
+    case 'make-target':
+      return <TextInput {...props} />;
+    case 'synonym-match':
+      return <MatchPairs {...props} />;
+    case 'maze':
+      return <MazeBoard {...props} />;
     // One MultipleChoice serves every option-picking LLM mechanic (§9.5).
     case 'spot-the-fallacy':
     case 'context-cloze':
     case 'trivia':
     case 'odd-one-out':
+    case 'verbal-analogy':
+    case 'hidden-assumption':
+    case 'what-follows':
+    case 'real-word':
+    case 'estimation':
+    case 'what-comes-next':
       return <MultipleChoice {...props} />;
     default:
       return (
