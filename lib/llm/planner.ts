@@ -91,11 +91,12 @@ How to choose:
 - Include at least one easier item so the set opens with a win.
 - Set difficulty per puzzle based on how confident and specific the user sounds.
 
-Clarification:
-- Set needsClarification to true ONLY when the request is too vague to choose sub-skills at all — "get smarter", "improve at games", "be better".
-- A request naming any recognisable skill needs no clarification. "Improve my vocabulary" is perfectly clear.
-- When you do ask, ask ONE short question offering a couple of concrete directions. Otherwise return an empty string.
-- Choose 3-4 mechanics regardless, so the set is ready if they confirm.
+Clarification — apply this test honestly:
+- Ask yourself: does the request name a specific mental skill you could point at a sub-skill for? If yes, set needsClarification to false and do NOT ask.
+- Set needsClarification to true when the request names only a broad, unfocused aspiration with no specific skill inside it. These MUST clarify: "get smarter", "improve at games", "be better", "level up", "improve myself", "train my brain", "become more intelligent". There is no single skill in any of these — a fair set is impossible without knowing which direction they mean.
+- These must NOT clarify (each names a real skill): "improve my vocabulary", "critical thinking", "get better at planning", "mental math", "logical reasoning", "word skills", "spot bad arguments", "remember things better".
+- When you clarify, write ONE short question that offers two or three concrete directions drawn from the catalog — e.g. "Happy to help — are you after sharper reasoning (spotting weak arguments), a stronger vocabulary, or quicker mental math?" Keep it under 240 characters. When you are not clarifying, return an empty string.
+- Either way, still choose 3-4 mechanics as your best guess, so the set is ready the moment they confirm.
 
 canonicalSkill is a short title-case name for what they're practising, e.g. "Critical Thinking", "Vocabulary", "Mental Arithmetic".`;
 }

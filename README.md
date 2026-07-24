@@ -57,13 +57,13 @@ random.
 
 ## Status
 
-**Phase 2 complete.** The full loop runs on the home page: type a skill →
-`/api/generate` interprets it, picks 3–4 mechanics from the catalog and
-generates them in parallel → option cards → play → grade. *"improve my
-vocabulary"* leads with a word puzzle, *"improve my planning"* leads with Zip,
-and every card shows what it trains. Play any mechanic in isolation at `/dev`.
-Try another / make it harder and the PWA layer are Phase 3. See
-[`docs/ROADMAP.md`](docs/ROADMAP.md) for what each phase covers.
+**MVP complete (Phase 3).** The full loop runs on the home page: type a skill →
+a vague prompt gets one clarifying question, a clear one goes straight through →
+3–4 verified puzzles → play → grade → *try another* / *make it harder* / *new
+skill*, with a *why this helps* line and a report button. The app installs to a
+phone home screen as a PWA and runs fullscreen. Phase 4 (more mechanics,
+progress persistence) is the V2 backlog. See
+[`docs/ROADMAP.md`](docs/ROADMAP.md) for the phase-by-phase detail.
 
 ## Stack
 
@@ -99,7 +99,10 @@ npm run lint
 app/
   page.tsx                  home — chat input + gallery (Phase 2)
   dev/page.tsx              dev harness: instantiate and play any mechanic
+  manifest.ts               the PWA web manifest
   api/generate              prompt → interpret + select + generate (parallel)
+  api/puzzle                regenerate one puzzle (try another / make it harder)
+  api/report                broken-puzzle report (logs a quality signal)
   api/dev/catalog           the trimmed catalog the /dev picker reads
   api/dev/generate          one mechanic at one difficulty
 lib/
@@ -107,6 +110,8 @@ lib/
   rng.ts                    seeded PRNG (mulberry32)
   select.ts                 tag-overlap ranking + variety rules (no model)
   pipeline.ts               prompt → puzzles, parallel generation + fall-through
+  whyThisHelps.ts           deterministic why-it-helps line
+  client/regenerate.ts      try-another / make-it-harder (local or /api/puzzle)
   mechanics/
     types.ts                Mechanic, PuzzleInstance, SkillContext, GradeResult
     subskills.ts            the controlled sub-skill vocabulary
@@ -125,7 +130,10 @@ lib/
 components/
   ChatInput.tsx             skill prompt + seeded examples
   OptionGallery.tsx         option cards + loading skeletons
-  PlayCard.tsx              renderer + submit + feedback
+  PlayShell.tsx             play surface: renderer + submit + actions
+  FeedbackPanel.tsx         verdict + explanation + why-it-helps + report
+  PlayCard.tsx              simpler play surface used by /dev
+  ServiceWorker.tsx         registers the PWA app-shell worker
   renderers/                ZipBoard, SequenceInput, MultipleChoice + the id → renderer switch
 ```
 

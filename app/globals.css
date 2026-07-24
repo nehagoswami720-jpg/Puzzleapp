@@ -5,11 +5,23 @@
   --font-mono: var(--font-geist-mono);
 }
 
+html {
+  /* Don't let iOS silently enlarge text in landscape. */
+  -webkit-text-size-adjust: 100%;
+}
+
 body {
-  /* Mobile-first canvas; the PWA theme/background colours land in Phase 3. */
   background: #eef2f7;
   color: #182031;
   font-family: var(--font-geist-sans), system-ui, -apple-system, "Segoe UI", Roboto,
     sans-serif;
   -webkit-tap-highlight-color: transparent;
+  /* A stray wide child should never make the whole page scroll sideways. */
+  overflow-x: hidden;
+  /* No pull-to-refresh / rubber-banding fighting a drag on the puzzle board. */
+  overscroll-behavior-y: none;
+  /* Clear the notch and home indicator when launched fullscreen from the home
+     screen (display: standalone). Harmless in a normal browser tab. */
+  padding: env(safe-area-inset-top) env(safe-area-inset-right)
+    env(safe-area-inset-bottom) env(safe-area-inset-left);
 }

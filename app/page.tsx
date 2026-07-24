@@ -3,17 +3,15 @@
 import { useCallback, useState } from 'react';
 import ChatInput from '@/components/ChatInput';
 import OptionGallery, { SkeletonCards } from '@/components/OptionGallery';
-import PlayCard from '@/components/PlayCard';
+import PlayShell from '@/components/PlayShell';
 import { getProceduralMechanic } from '@/lib/mechanics/procedural';
 import type { GradeResult, PuzzleInstance, SkillContext } from '@/lib/mechanics/types';
 
 type View = 'home' | 'loading' | 'gallery' | 'play';
 
 /**
- * The core loop (§3, §12): type a skill → option cards → play → grade.
- *
- * "Try another / Make it harder" and the full feedback panel are Phase 3; this
- * phase is about the loop existing end to end.
+ * The core loop (§3, §12): type a skill → (maybe one clarifying question) →
+ * option cards → play → grade → try another / make it harder / new skill.
  */
 export default function Home() {
   const [view, setView] = useState<View>('home');
@@ -24,6 +22,8 @@ export default function Home() {
   const [playing, setPlaying] = useState<PuzzleInstance<any, any> | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [lastPrompt, setLastPrompt] = useState('');
+  /** true while we're waiting on the answer to a clarifying question */
+  const [awaitingClarify, setAwaitingClarify] = useState(false);
 
   const run = async (prompt: string) => {
     setView('loading');
@@ -43,20 +43,38 @@ export default function Home() {
       if (!res.ok) {
         setError(data.error ?? 'Something went wrong.');
         setView('home');
+        setAwaitingClarify(false);
         return;
       }
 
       setSkill(data.skillContext);
+
+      // A vague prompt comes back with a question and no puzzles (§12.4): ask
+      // exactly once, then whatever they say next is treated as the real skill.
+      if (
+        data.skillContext?.needsClarification &&
+        data.skillContext.clarifyingQuestion &&
+        (data.instances?.length ?? 0) === 0
+      ) {
+        setAwaitingClarify(true);
+        setView('home');
+        return;
+      }
+
+      setAwaitingClarify(false);
       setInstances(data.instances ?? []);
-      // A clarifying question comes back with no puzzles — ask, then re-run.
       setView(data.instances?.length ? 'gallery' : 'home');
+      if (!data.instances?.length) {
+        setError('Could not build a set for that. Try naming the skill a little differently.');
+      }
     } catch {
       setError('Could not reach the server. Check your connection and try again.');
       setView('home');
+      setAwaitingClarify(false);
     }
   };
 
-  /** Deterministic grading (§11). Procedural mechanics can grade fully offline. */
+  /** Deterministic grading (§11) — procedural mechanics can grade fully offline. */
   const grade = useCallback(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async (inst: PuzzleInstance<any, any>, answer: unknown): Promise<GradeResult> => {
@@ -74,9 +92,9 @@ export default function Home() {
     setPlaying(null);
     setSkill(null);
     setError(null);
+    setAwaitingClarify(false);
+    setLastPrompt('');
   };
-
-  const clarifying = view === 'home' && skill?.needsClarification && skill.clarifyingQuestion;
 
   return (
     <main className="mx-auto flex w-full max-w-xl flex-col gap-6 px-4 py-8">
@@ -85,21 +103,21 @@ export default function Home() {
           Skill Puzzles
         </p>
         <h1 className="mt-1 text-3xl font-extrabold tracking-tight text-slate-900">
-          {view === 'home' ? 'What do you want to get better at?' : (skill?.canonicalSkill ?? '')}
+          {view === 'home'
+            ? 'What do you want to get better at?'
+            : (skill?.canonicalSkill ?? '')}
         </h1>
-        {view !== 'home' && (
-          <p className="mt-1 text-sm text-slate-500">
-            Practising what you asked for: “{skill?.rawPrompt}”
-          </p>
+        {view !== 'home' && skill && (
+          <p className="mt-1 text-sm text-slate-500">Practising “{skill.rawPrompt}”</p>
         )}
       </header>
 
       {view === 'home' && (
         <>
-          {clarifying && (
+          {awaitingClarify && skill?.clarifyingQuestion && (
             <div className="rounded-3xl rounded-bl-lg border border-indigo-200 bg-indigo-50 p-4">
               <p className="text-sm leading-relaxed text-indigo-950">
-                {skill!.clarifyingQuestion}
+                {skill.clarifyingQuestion}
               </p>
             </div>
           )}
@@ -109,19 +127,21 @@ export default function Home() {
             </p>
           )}
           <ChatInput
+            key={awaitingClarify ? 'clarify' : 'fresh'}
             onSubmit={run}
             busy={false}
-            initialValue={clarifying ? lastPrompt : ''}
             placeholder={
-              clarifying
-                ? 'Add a bit more detail…'
+              awaitingClarify
+                ? 'Answer in a few words…'
                 : 'e.g. I want to improve my critical thinking'
             }
           />
-          <p className="text-xs leading-relaxed text-slate-400">
-            Every puzzle is checked before you see it — procedural ones are verified
-            solvable, and generated ones are schema-validated.
-          </p>
+          {!awaitingClarify && (
+            <p className="text-xs leading-relaxed text-slate-400">
+              Every puzzle is checked before you see it — procedural ones are verified
+              solvable, and generated ones are schema-validated.
+            </p>
+          )}
         </>
       )}
 
@@ -155,28 +175,20 @@ export default function Home() {
       )}
 
       {view === 'play' && playing && (
-        <>
-          <PlayCard key={playing.id} instance={playing} grade={grade} />
-          <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={() => {
-                setPlaying(null);
-                setView('gallery');
-              }}
-              className="min-h-12 flex-1 rounded-xl border border-slate-200 bg-white px-4 font-semibold text-slate-700"
-            >
-              ← Back to puzzles
-            </button>
-            <button
-              type="button"
-              onClick={reset}
-              className="min-h-12 rounded-xl border border-slate-200 bg-white px-4 font-semibold text-slate-700"
-            >
-              New skill
-            </button>
-          </div>
-        </>
+        <PlayShell
+          key={playing.id}
+          instance={playing}
+          grade={grade}
+          onNewSkill={reset}
+          onBackToGallery={
+            instances.length > 0
+              ? () => {
+                  setPlaying(null);
+                  setView('gallery');
+                }
+              : undefined
+          }
+        />
       )}
     </main>
   );

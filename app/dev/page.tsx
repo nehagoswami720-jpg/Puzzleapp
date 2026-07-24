@@ -193,7 +193,7 @@ export default function DevPage() {
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
             placeholder="e.g. improve my critical thinking"
-            className="min-h-12 rounded-xl border border-slate-200 bg-white px-4 text-[15px] text-slate-900 outline-none focus:border-indigo-500"
+            className="min-h-12 rounded-xl border border-slate-200 bg-white px-4 text-[16px] text-slate-900 outline-none focus:border-indigo-500"
           />
         </div>
 

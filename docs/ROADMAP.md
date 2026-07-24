@@ -10,8 +10,8 @@ confused with a bug in a puzzle.
 | 0 | Scaffold + `/dev` harness | ✅ Complete |
 | 1 | Four mechanics working in isolation | ✅ Complete |
 | 2 | Prompt → puzzles pipeline | ✅ Complete |
-| 3 | Play polish, feedback, mobile + PWA | ⬜ Next |
-| 4 | Expand the library, persist progress | ⬜ |
+| 3 | Play polish, feedback, mobile + PWA | ✅ Complete — **MVP** |
+| 4 | Expand the library, persist progress | ⬜ V2 |
 
 ---
 
@@ -190,15 +190,41 @@ before generation, so a short list there is harmless.
 
 ---
 
-## Phase 3 — Play polish, feedback, mobile + PWA ⬜
+## Phase 3 — Play polish, feedback, mobile + PWA ✅ — the MVP finish line
 
-The real feedback panel with explanation and why-it-helps; *try another* /
-*make it harder* / *new skill*; the clarifying-question flow; the broken-puzzle
-thumbs-down. The whole UI goes mobile-first, and the PWA layer lands.
+The feedback panel, the three play actions, the clarifying-question flow, the
+broken-puzzle report, a mobile-first pass, and the installable PWA.
 
 **Acceptance:** the loop feels smooth; a vague prompt triggers exactly one
 clarifying question; *harder* raises difficulty; the deployed URL installs to an
-iPhone home screen and runs fullscreen; every mechanic is playable by touch.
+iPhone home screen and runs fullscreen; every mechanic is playable by touch. ✔
+
+### What was built
+
+| Area | Detail |
+|---|---|
+| Feedback | `FeedbackPanel`: verdict, the specific note, the teaching explanation, and a *why this helps* line built deterministically from the trained sub-skills and the canonical skill — no extra model call, so it can't contradict the card. |
+| Actions | `PlayShell` with *Try another*, *Make it harder* (capped at hard), *New skill*, and *← Puzzles*. Regeneration runs locally for procedural mechanics (instant, offline) and via `/api/puzzle` for LLM ones, with the skill context passed back so content stays on-topic. |
+| Report | Thumbs-down → `/api/report`, which logs `{instanceId, mechanicId, difficulty}` — a quality signal, no DB. |
+| Clarify | Planner prompt retuned with explicit vague/clear lists. Verified 10/10: five vague prompts ("get smarter", "level up", …) all ask one question offering catalog-drawn directions; five clear prompts ("vocabulary", "mental math", …) all skip it. The home page runs ask → answer → generate. |
+| Mobile | `viewportFit: cover` + safe-area padding; `overflow-x: hidden` and `overscroll-behavior-y: none` so a drag never fights page scroll or pull-to-refresh; all inputs ≥16px to stop iOS zoom-on-focus; touch targets ≥44px. The Zip board already carried `touch-action: none`. |
+| PWA | `app/manifest.ts` (`display: standalone`, theme/background colours, 192 + 512 + maskable icons generated from `public/icon.svg` via a one-time sharp script), `apple-touch-icon`, the iOS status-bar meta, and a network-first-for-navigations service worker that **never caches `/api/`** — a stale puzzle set is worse than a spinner. |
+
+### Verification
+
+- Build, typecheck, lint clean. Manifest, `sw.js`, and all five icon assets
+  serve 200 with correct content types; the head carries the manifest link,
+  apple-touch-icon, status-bar and `mobile-web-app-capable` tags.
+- Play actions exercised live: *make it harder* steps medium → hard with content
+  still on-skill, *why this helps* names the skill, grading is correct both ways,
+  and procedural *try another* yields a genuinely different board.
+- 13 client chunks — no trace of the SDK, the key, or any generation prompt.
+
+### Not verified from here
+
+The physical Add-to-Home-Screen install and fullscreen launch on a real iPhone,
+and touch-drag feel on a physical device. Both need a phone — the reason this is
+the acceptance step to check by hand.
 
 ---
 
