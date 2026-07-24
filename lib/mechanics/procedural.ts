@@ -5,12 +5,19 @@
  * they can run in the browser — which is also what makes offline play possible
  * later (§18). This module must stay free of any `lib/llm/*` import.
  */
+import { memoryMechanic } from './memory';
 import { sequenceMechanic } from './sequence';
+import { sudokuMechanic } from './sudoku';
 import type { Mechanic } from './types';
 import { zipMechanic } from './zip';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const PROCEDURAL_MECHANICS: Mechanic<any, any, any>[] = [zipMechanic, sequenceMechanic];
+export const PROCEDURAL_MECHANICS: Mechanic<any, any, any>[] = [
+  zipMechanic,
+  sequenceMechanic,
+  sudokuMechanic,
+  memoryMechanic,
+];
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function getProceduralMechanic(id: string): Mechanic<any, any, any> | undefined {

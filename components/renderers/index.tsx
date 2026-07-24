@@ -2,8 +2,10 @@
 
 import type { RendererProps } from '@/lib/mechanics/types';
 import ConnectionsBoard from './ConnectionsBoard';
+import MemoryGrid from './MemoryGrid';
 import MultipleChoice from './MultipleChoice';
 import SequenceInput from './SequenceInput';
+import SudokuGrid from './SudokuGrid';
 import ZipBoard from './ZipBoard';
 
 /**
@@ -28,6 +30,8 @@ export const RENDERED_MECHANICS = [
   'trivia',
   'odd-one-out',
   'connections',
+  'sudoku',
+  'memory',
 ] as const;
 
 export function hasRenderer(mechanicId: string): boolean {
@@ -42,6 +46,10 @@ export default function MechanicRenderer(props: AnyRendererProps) {
       return <SequenceInput {...props} />;
     case 'connections':
       return <ConnectionsBoard {...props} />;
+    case 'sudoku':
+      return <SudokuGrid {...props} />;
+    case 'memory':
+      return <MemoryGrid {...props} />;
     // One MultipleChoice serves every option-picking LLM mechanic (§9.5).
     case 'spot-the-fallacy':
     case 'context-cloze':
