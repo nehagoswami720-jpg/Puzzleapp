@@ -6,9 +6,8 @@ import type { RendererProps } from '@/lib/mechanics/types';
 const LETTERS = ['A', 'B', 'C', 'D', 'E', 'F'];
 
 /**
- * The one multiple-choice surface — ~6 LLM mechanics reuse it (§9.5), so it
- * carries the touch targets and states for all of them. Options are radio-like
- * buttons at ≥44px so they're comfortable on a phone.
+ * The one multiple-choice surface — ~6 LLM mechanics reuse it (§9.5). Dark rows,
+ * ≥44px targets, lime selection state.
  */
 export default function MultipleChoice({
   instance,
@@ -20,7 +19,7 @@ export default function MultipleChoice({
 
   return (
     <div className="flex flex-col gap-4">
-      <p className="rounded-2xl bg-slate-50 p-4 text-[15px] leading-relaxed text-slate-900">
+      <p className="rounded-xl border border-line bg-surface-2 p-4 text-[15px] leading-relaxed text-ink">
         {stem}
       </p>
 
@@ -38,15 +37,15 @@ export default function MultipleChoice({
               className={[
                 'flex min-h-12 w-full items-center gap-3 rounded-xl border px-4 py-3 text-left text-[15px] transition',
                 selected
-                  ? 'border-indigo-500 bg-indigo-50 text-slate-900'
-                  : 'border-slate-200 bg-white text-slate-700',
-                locked ? 'opacity-70' : 'active:scale-[0.99]',
+                  ? 'border-lime bg-lime/10 text-ink'
+                  : 'border-line bg-surface text-muted hover:border-line-strong',
+                locked ? 'opacity-80' : 'active:scale-[0.99]',
               ].join(' ')}
             >
               <span
                 className={[
-                  'grid size-7 shrink-0 place-items-center rounded-lg text-xs font-bold',
-                  selected ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-500',
+                  'grid size-7 shrink-0 place-items-center rounded-lg font-mono text-xs font-bold',
+                  selected ? 'bg-lime text-canvas' : 'bg-surface-2 text-faint',
                 ].join(' ')}
               >
                 {LETTERS[i] ?? i + 1}

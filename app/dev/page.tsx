@@ -114,24 +114,24 @@ export default function DevPage() {
   return (
     <main className="mx-auto flex max-w-xl flex-col gap-6 px-4 py-8">
       <header>
-        <p className="font-mono text-[11px] tracking-[0.12em] text-slate-400 uppercase">
+        <p className="font-mono text-[11px] tracking-[0.12em] text-faint uppercase">
           Dev harness · Phase 1
         </p>
-        <h1 className="mt-1 text-3xl font-extrabold tracking-tight text-slate-900">
+        <h1 className="mt-1 font-display text-3xl font-bold tracking-tight text-ink">
           Mechanics
         </h1>
-        <p className="mt-2 text-sm leading-relaxed text-slate-600">
+        <p className="mt-2 text-sm leading-relaxed text-muted">
           Generate and play any mechanic at any difficulty. The prompt→puzzles
           pipeline is Phase 2 — here each mechanic is driven directly.
         </p>
       </header>
 
-      <section className="flex flex-col gap-4 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+      <section className="flex flex-col gap-4 rounded-2xl border border-line bg-surface p-5">
         <div className="flex flex-col gap-2">
-          <label className="text-xs font-semibold tracking-wide text-slate-500 uppercase">
+          <label className="text-xs font-semibold tracking-wide text-faint uppercase">
             Mechanic
           </label>
-          {catalogError && <p className="text-sm text-red-700">{catalogError}</p>}
+          {catalogError && <p className="text-sm text-rose">{catalogError}</p>}
           <div className="flex flex-wrap gap-2">
             {(mechanics ?? []).map((m) => (
               <button
@@ -141,25 +141,25 @@ export default function DevPage() {
                 className={[
                   'min-h-11 rounded-xl border px-3 text-sm font-semibold',
                   m.id === mechanicId
-                    ? 'border-indigo-500 bg-indigo-50 text-slate-900'
-                    : 'border-slate-200 bg-white text-slate-600',
+                    ? 'border-lime bg-lime/10 text-ink'
+                    : 'border-line bg-surface text-muted',
                 ].join(' ')}
               >
                 {m.name}
-                <span className="ml-2 font-mono text-[10px] text-slate-400 uppercase">
+                <span className="ml-2 font-mono text-[10px] text-faint uppercase">
                   {m.engine === 'llm' ? 'llm' : 'proc'}
                 </span>
               </button>
             ))}
             {!mechanics && !catalogError && (
-              <p className="text-sm text-slate-400">Loading catalog…</p>
+              <p className="text-sm text-faint">Loading catalog…</p>
             )}
           </div>
-          {selected && <p className="text-xs leading-relaxed text-slate-500">{selected.description}</p>}
+          {selected && <p className="text-xs leading-relaxed text-faint">{selected.description}</p>}
         </div>
 
         <div className="flex flex-col gap-2">
-          <label className="text-xs font-semibold tracking-wide text-slate-500 uppercase">
+          <label className="text-xs font-semibold tracking-wide text-faint uppercase">
             Difficulty
           </label>
           <div className="flex gap-2">
@@ -171,8 +171,8 @@ export default function DevPage() {
                 className={[
                   'min-h-11 flex-1 rounded-xl border text-sm font-semibold capitalize',
                   d === difficulty
-                    ? 'border-indigo-500 bg-indigo-50 text-slate-900'
-                    : 'border-slate-200 bg-white text-slate-600',
+                    ? 'border-lime bg-lime/10 text-ink'
+                    : 'border-line bg-surface text-muted',
                 ].join(' ')}
               >
                 {d}
@@ -184,7 +184,7 @@ export default function DevPage() {
         <div className="flex flex-col gap-2">
           <label
             htmlFor="dev-prompt"
-            className="text-xs font-semibold tracking-wide text-slate-500 uppercase"
+            className="text-xs font-semibold tracking-wide text-faint uppercase"
           >
             Skill prompt <span className="normal-case opacity-70">(steers LLM content)</span>
           </label>
@@ -193,7 +193,7 @@ export default function DevPage() {
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
             placeholder="e.g. improve my critical thinking"
-            className="min-h-12 rounded-xl border border-slate-200 bg-white px-4 text-[16px] text-slate-900 outline-none focus:border-indigo-500"
+            className="min-h-12 rounded-xl ring-accent border border-line bg-surface-2 px-4 text-[16px] text-ink outline-none focus:border-line-strong"
           />
         </div>
 
@@ -201,14 +201,14 @@ export default function DevPage() {
           type="button"
           onClick={generate}
           disabled={busy || !mechanics}
-          className="min-h-12 rounded-xl bg-indigo-600 px-4 font-semibold text-white disabled:opacity-40"
+          className="min-h-12 rounded-xl bg-lime px-4 font-display font-semibold text-canvas disabled:bg-surface-2 disabled:text-faint"
         >
           {busy ? 'Generating…' : 'Generate'}
         </button>
 
-        {status && <p className="font-mono text-[11px] text-slate-400">{status}</p>}
+        {status && <p className="font-mono text-[11px] text-faint">{status}</p>}
         {error && (
-          <p className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-800">
+          <p className="rounded-xl border border-rose/40 bg-rose/10 p-3 text-sm text-rose">
             {error}
           </p>
         )}

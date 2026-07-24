@@ -5,9 +5,9 @@ import type { SequenceAnswer, SequenceContent } from '@/lib/mechanics/sequence';
 import type { RendererProps } from '@/lib/mechanics/types';
 
 /**
- * Shows the run with an input box at each hidden position. The answer only
- * becomes submittable once every blank holds a valid integer, so grading never
- * has to deal with partial input.
+ * The run with an input box at each hidden position. Big mono numerals, lime
+ * focus. The answer only becomes submittable once every blank holds a valid
+ * integer, so grading never sees partial input.
  */
 export default function SequenceInput({
   instance,
@@ -18,7 +18,6 @@ export default function SequenceInput({
   const [values, setValues] = useState<string[]>(() => blanks.map(() => ''));
 
   const update = (blankIndex: number, raw: string) => {
-    // Allow a leading minus while typing, but nothing else non-numeric.
     if (raw !== '' && raw !== '-' && !/^-?\d+$/.test(raw)) return;
     const next = [...values];
     next[blankIndex] = raw;
@@ -48,10 +47,10 @@ export default function SequenceInput({
                   onChange={(e) => update(blankIndex, e.target.value)}
                   aria-label={`Missing term ${blankIndex + 1} of ${blanks.length}`}
                   placeholder="?"
-                  className="h-14 w-20 rounded-xl border-2 border-indigo-400 bg-indigo-50 text-center text-lg font-bold tabular-nums text-slate-900 outline-none focus:border-indigo-600 disabled:opacity-70"
+                  className="ring-accent h-14 w-20 rounded-xl border-2 border-lime/60 bg-lime/5 text-center font-mono text-lg font-bold text-ink outline-none placeholder:text-faint focus:border-lime disabled:opacity-70"
                 />
               ) : (
-                <span className="grid h-14 min-w-20 place-items-center rounded-xl border border-slate-200 bg-white px-3 text-lg font-semibold tabular-nums text-slate-900">
+                <span className="grid h-14 min-w-20 place-items-center rounded-xl border border-line bg-surface-2 px-3 font-mono text-lg font-semibold text-ink">
                   {term}
                 </span>
               )}
@@ -59,7 +58,7 @@ export default function SequenceInput({
           );
         })}
       </ol>
-      <p className="text-xs text-slate-500">
+      <p className="text-xs text-faint">
         {blanks.length === 1
           ? 'Enter the missing number.'
           : `Enter all ${blanks.length} missing numbers, left to right.`}

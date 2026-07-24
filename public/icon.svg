@@ -1,21 +1,26 @@
 <svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Skill Puzzles">
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#6366f1"/>
-      <stop offset="1" stop-color="#22d3ee"/>
+    <linearGradient id="path" x1="120" y1="150" x2="392" y2="362" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#bef264"/>
+      <stop offset="1" stop-color="#34e0ea"/>
     </linearGradient>
+    <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="14" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
   </defs>
-  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
-  <!-- A Zip-style continuous path threading four checkpoints -->
+  <rect width="512" height="512" rx="112" fill="#0e0f13"/>
+  <rect x="8" y="8" width="496" height="496" rx="106" fill="none" stroke="#262a35" stroke-width="3"/>
+  <!-- A Zip-style continuous path threading four checkpoints, glowing lime→cyan -->
   <polyline points="146,150 146,362 256,362 256,150 366,150 366,362"
-    fill="none" stroke="#ffffff" stroke-width="30"
-    stroke-linecap="round" stroke-linejoin="round" opacity="0.95"/>
-  <circle cx="146" cy="150" r="34" fill="#ffffff"/>
-  <circle cx="256" cy="150" r="34" fill="#ffffff"/>
-  <circle cx="256" cy="362" r="34" fill="#ffffff"/>
-  <circle cx="366" cy="362" r="34" fill="#ffffff"/>
-  <text x="146" y="150" dy="11" text-anchor="middle" font-family="ui-monospace, monospace" font-size="40" font-weight="700" fill="#4338ca">1</text>
-  <text x="256" y="150" dy="11" text-anchor="middle" font-family="ui-monospace, monospace" font-size="40" font-weight="700" fill="#4338ca">2</text>
-  <text x="256" y="362" dy="11" text-anchor="middle" font-family="ui-monospace, monospace" font-size="40" font-weight="700" fill="#4338ca">3</text>
-  <text x="366" y="362" dy="11" text-anchor="middle" font-family="ui-monospace, monospace" font-size="40" font-weight="700" fill="#0e7490">4</text>
+    fill="none" stroke="url(#path)" stroke-width="26"
+    stroke-linecap="round" stroke-linejoin="round" filter="url(#glow)"/>
+  <g font-family="ui-monospace, monospace" font-size="34" font-weight="700" text-anchor="middle">
+    <circle cx="146" cy="150" r="32" fill="#15171e" stroke="#bef264" stroke-width="3"/>
+    <text x="146" y="150" dy="12" fill="#bef264">1</text>
+    <circle cx="256" cy="362" r="32" fill="#15171e" stroke="#7fe6da" stroke-width="3"/>
+    <text x="256" y="362" dy="12" fill="#8ef0e6">2</text>
+    <circle cx="366" cy="150" r="32" fill="#15171e" stroke="#34e0ea" stroke-width="3"/>
+    <text x="366" y="150" dy="12" fill="#34e0ea">3</text>
+  </g>
 </svg>

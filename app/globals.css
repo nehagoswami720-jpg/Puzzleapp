@@ -1,27 +1,108 @@
 @import "tailwindcss";
 
-@theme inline {
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/*
+ * Focused Dark — the V2 identity. A single committed dark theme (not
+ * theme-aware): charcoal surfaces, off-white text, electric lime as the action
+ * accent and cyan as the path/secondary accent. Tokens live here so the whole
+ * app draws from one palette and it stays swappable.
+ */
+@theme {
+  --color-canvas: #0e0f13;
+  --color-surface: #15171e;
+  --color-surface-2: #1c1f28;
+  --color-line: #262a35;
+  --color-line-strong: #333949;
+
+  --color-ink: #eceef2;
+  --color-muted: #99a0ad;
+  --color-faint: #5c6470;
+
+  --color-lime: #bef264;
+  --color-lime-dim: #a3d94f;
+  --color-cyan: #34e0ea;
+  --color-amber: #fbbf24;
+  --color-rose: #fb7185;
+
+  --font-display: var(--font-space-grotesk), var(--font-geist-sans), system-ui, sans-serif;
+  --font-sans: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
 }
 
 html {
-  /* Don't let iOS silently enlarge text in landscape. */
   -webkit-text-size-adjust: 100%;
+  color-scheme: dark;
 }
 
 body {
-  background: #eef2f7;
-  color: #182031;
-  font-family: var(--font-geist-sans), system-ui, -apple-system, "Segoe UI", Roboto,
-    sans-serif;
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
   -webkit-tap-highlight-color: transparent;
-  /* A stray wide child should never make the whole page scroll sideways. */
   overflow-x: hidden;
-  /* No pull-to-refresh / rubber-banding fighting a drag on the puzzle board. */
   overscroll-behavior-y: none;
-  /* Clear the notch and home indicator when launched fullscreen from the home
-     screen (display: standalone). Harmless in a normal browser tab. */
   padding: env(safe-area-inset-top) env(safe-area-inset-right)
     env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+
+/* A faint top-lit wash so the charcoal isn't dead flat. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  background:
+    radial-gradient(120% 60% at 50% -10%, rgba(52, 224, 234, 0.06), transparent 60%),
+    radial-gradient(90% 50% at 100% 0%, rgba(190, 242, 100, 0.05), transparent 55%);
+}
+
+@layer utilities {
+  .font-display {
+    font-family: var(--font-display);
+  }
+
+  /* Accent focus ring, used on inputs and the drawable board. */
+  .ring-accent:focus-visible {
+    outline: 2px solid var(--color-lime);
+    outline-offset: 3px;
+  }
+
+  /* Loading shimmer for skeleton cards. */
+  .shimmer {
+    background: linear-gradient(
+      100deg,
+      var(--color-surface) 30%,
+      var(--color-surface-2) 50%,
+      var(--color-surface) 70%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.4s ease-in-out infinite;
+  }
+  @keyframes shimmer {
+    from { background-position: 200% 0; }
+    to { background-position: -200% 0; }
+  }
+
+  /* Entrance for cards and panels. */
+  .rise {
+    animation: rise 0.32s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Solve celebration on the play surface. */
+  .pop {
+    animation: pop 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+  }
+  @keyframes pop {
+    0% { transform: scale(0.98); }
+    55% { transform: scale(1.015); }
+    100% { transform: scale(1); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .shimmer, .rise, .pop { animation: none; }
+  }
 }

@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import ServiceWorker from "@/components/ServiceWorker";
 
@@ -13,14 +13,20 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+// Display face — a characterful grotesk with distinctive tabular-feeling digits,
+// used for headings and titles. Body stays Geist Sans; numerals stay Geist Mono.
+const spaceGrotesk = Space_Grotesk({
+  variable: "--font-space-grotesk",
+  subsets: ["latin"],
+  weight: ["500", "600", "700"],
+});
+
 export const metadata: Metadata = {
   title: "Skill Puzzles",
   description:
     "Describe a skill you want to improve and get tailored, verified puzzles to practise it.",
   manifest: "/manifest.webmanifest",
   appleWebApp: {
-    // iOS equivalent of display: standalone — a chromeless, fullscreen launch
-    // from the home screen, with a dark status bar over the indigo header.
     capable: true,
     title: "Skill Puzzles",
     statusBarStyle: "black-translucent",
@@ -34,15 +40,11 @@ export const metadata: Metadata = {
   },
 };
 
-// Mobile-first: design target is a ~380px viewport. `viewportFit: "cover"` lets
-// the layout extend under the notch/home indicator; the body then pads itself
-// back in with the safe-area insets. Pinch-zoom is left enabled for
-// accessibility — we don't set maximumScale.
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  themeColor: "#6366f1",
+  themeColor: "#0e0f13",
 };
 
 export default function RootLayout({
@@ -53,7 +55,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${spaceGrotesk.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">
         {children}

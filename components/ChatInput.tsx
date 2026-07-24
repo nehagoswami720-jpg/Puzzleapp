@@ -8,7 +8,6 @@ const EXAMPLES = ['critical thinking', 'vocabulary', 'mental math'];
 interface ChatInputProps {
   onSubmit(prompt: string): void;
   busy: boolean;
-  /** shown as the field value when re-asking after a clarifying question */
   initialValue?: string;
   placeholder?: string;
 }
@@ -35,7 +34,7 @@ export default function ChatInput({
           e.preventDefault();
           submit(value);
         }}
-        className="flex flex-col gap-2"
+        className="flex flex-col gap-2.5"
       >
         <label htmlFor="skill" className="sr-only">
           What skill do you want to improve?
@@ -48,19 +47,19 @@ export default function ChatInput({
           maxLength={300}
           autoComplete="off"
           disabled={busy}
-          className="min-h-13 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-[16px] text-slate-900 shadow-sm outline-none placeholder:text-slate-400 focus:border-indigo-500 disabled:opacity-60"
+          className="ring-accent min-h-14 rounded-2xl border border-line bg-surface-2 px-4 py-3 text-[16px] text-ink outline-none placeholder:text-faint focus:border-line-strong disabled:opacity-60"
         />
         <button
           type="submit"
           disabled={busy || trimmed.length < 2}
-          className="min-h-13 rounded-2xl bg-indigo-600 px-4 text-[15px] font-semibold text-white disabled:opacity-40"
+          className="min-h-14 rounded-2xl bg-lime px-4 font-display text-[15px] font-semibold tracking-tight text-canvas transition active:scale-[0.99] disabled:bg-surface-2 disabled:text-faint"
         >
           {busy ? 'Building your set…' : 'Make me some puzzles'}
         </button>
       </form>
 
       <div className="flex flex-wrap items-center gap-2">
-        <span className="text-xs text-slate-400">Try:</span>
+        <span className="text-xs text-faint">Try</span>
         {EXAMPLES.map((ex) => (
           <button
             key={ex}
@@ -70,7 +69,7 @@ export default function ChatInput({
               setValue(ex);
               submit(ex);
             }}
-            className="min-h-9 rounded-full border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-600 disabled:opacity-40"
+            className="min-h-9 rounded-full border border-line bg-surface px-3 text-xs font-semibold text-muted transition hover:border-lime/50 hover:text-ink disabled:opacity-40"
           >
             {ex}
           </button>

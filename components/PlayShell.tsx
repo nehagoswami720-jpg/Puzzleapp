@@ -10,19 +10,21 @@ import type { GradeResult, PuzzleInstance } from '@/lib/mechanics/types';
 /**
  * §12.3 play surface: the mechanic, Submit → FeedbackPanel, then the three
  * actions — Try another, Make it harder, New skill.
- *
- * The renderer is keyed on the instance id so a regenerated puzzle gets a fresh
- * board rather than one carrying the previous answer.
  */
 interface PlayShellProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   instance: PuzzleInstance<any, any>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   grade(instance: PuzzleInstance<any, any>, answer: any): Promise<GradeResult>;
-  /** navigate up a level — provided by the page, not the shell */
   onNewSkill(): void;
   onBackToGallery?: () => void;
 }
+
+const DIFF_TEXT: Record<string, string> = {
+  easy: 'text-lime',
+  medium: 'text-cyan',
+  hard: 'text-amber',
+};
 
 export default function PlayShell({
   instance: initial,
@@ -72,18 +74,24 @@ export default function PlayShell({
   const busy = grading || regenerating !== null;
 
   return (
-    <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+    <section
+      className={`rise rounded-2xl border border-line bg-surface p-5 ${result?.correct ? 'pop' : ''}`}
+    >
       <header className="mb-4">
         <div className="flex items-start justify-between gap-3">
-          <h2 className="text-xl font-bold tracking-tight text-slate-900">{instance.title}</h2>
-          <span className="shrink-0 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600 capitalize">
+          <h2 className="font-display text-xl font-semibold tracking-tight text-ink">
+            {instance.title}
+          </h2>
+          <span
+            className={`shrink-0 rounded-full border border-line bg-surface-2 px-2.5 py-1 text-[11px] font-semibold capitalize ${DIFF_TEXT[instance.difficulty] ?? 'text-muted'}`}
+          >
             {instance.difficulty}
           </span>
         </div>
-        <p className="mt-1 font-mono text-[11px] tracking-wide text-indigo-500 uppercase">
+        <p className="mt-1 font-mono text-[11px] tracking-wide text-cyan/80 uppercase">
           {instance.trainsLabel}
         </p>
-        <p className="mt-3 text-sm leading-relaxed text-slate-600">{instance.prompt}</p>
+        <p className="mt-3 text-sm leading-relaxed text-muted">{instance.prompt}</p>
       </header>
 
       <MechanicRenderer
@@ -99,7 +107,7 @@ export default function PlayShell({
           type="button"
           onClick={submit}
           disabled={answer === null || busy}
-          className="mt-5 min-h-12 w-full rounded-xl bg-indigo-600 px-4 font-semibold text-white disabled:opacity-40"
+          className="mt-5 min-h-13 w-full rounded-xl bg-lime px-4 font-display font-semibold text-canvas transition active:scale-[0.99] disabled:bg-surface-2 disabled:text-faint"
         >
           {grading ? 'Checking…' : 'Submit'}
         </button>
@@ -108,19 +116,18 @@ export default function PlayShell({
       {result && <FeedbackPanel instance={instance} result={result} />}
 
       {regenError && (
-        <p className="mt-3 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-800">
+        <p className="mt-3 rounded-xl border border-rose/40 bg-rose/10 p-3 text-sm text-rose">
           {regenError}
         </p>
       )}
 
-      {/* Actions are always available, so a stuck puzzle is never a dead end. */}
       <div className="mt-4 flex flex-col gap-2">
         <div className="flex gap-2">
           <button
             type="button"
             onClick={() => regenerate('another')}
             disabled={busy}
-            className="min-h-12 flex-1 rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-800 disabled:opacity-40"
+            className="min-h-12 flex-1 rounded-xl border border-line bg-surface-2 px-3 text-sm font-semibold text-ink transition hover:border-line-strong disabled:opacity-40"
           >
             {regenerating === 'another' ? 'Generating…' : 'Try another'}
           </button>
@@ -129,7 +136,7 @@ export default function PlayShell({
             onClick={() => regenerate('harder')}
             disabled={busy || atHardest}
             title={atHardest ? 'Already at the hardest level' : undefined}
-            className="min-h-12 flex-1 rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-800 disabled:opacity-40"
+            className="min-h-12 flex-1 rounded-xl border border-line bg-surface-2 px-3 text-sm font-semibold text-ink transition hover:border-line-strong disabled:opacity-40"
           >
             {regenerating === 'harder'
               ? 'Generating…'
@@ -144,7 +151,7 @@ export default function PlayShell({
               type="button"
               onClick={onBackToGallery}
               disabled={busy}
-              className="min-h-11 flex-1 rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-600 disabled:opacity-40"
+              className="min-h-11 flex-1 rounded-xl border border-line bg-surface px-3 text-sm font-semibold text-muted transition hover:text-ink disabled:opacity-40"
             >
               ← Puzzles
             </button>
@@ -153,7 +160,7 @@ export default function PlayShell({
             type="button"
             onClick={onNewSkill}
             disabled={busy}
-            className="min-h-11 flex-1 rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-600 disabled:opacity-40"
+            className="min-h-11 flex-1 rounded-xl border border-line bg-surface px-3 text-sm font-semibold text-muted transition hover:text-ink disabled:opacity-40"
           >
             New skill
           </button>

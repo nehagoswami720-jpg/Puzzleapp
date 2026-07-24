@@ -207,7 +207,7 @@ export default function ZipBoard({
         aria-label="Zip board. Drag to draw the path, or use the arrow keys and Backspace."
         tabIndex={0}
         onKeyDown={onKeyDown}
-        className="rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-4"
+        className={`ring-accent overflow-hidden rounded-2xl border border-line bg-[#0b0c10] outline-none ${complete ? 'pop' : ''}`}
       >
         <svg
           ref={svgRef}
@@ -218,64 +218,35 @@ export default function ZipBoard({
           onPointerMove={onPointerMove}
         >
           <defs>
-            <linearGradient
-              id="zipPath"
-              x1="0"
-              y1="0"
-              x2={boardW}
-              y2={boardH}
-              gradientUnits="userSpaceOnUse"
-            >
-              <stop offset="0" stopColor="#6366f1" />
-              <stop offset="1" stopColor="#22d3ee" />
+            <linearGradient id="zipPath" x1="0" y1="0" x2={boardW} y2={boardH} gradientUnits="userSpaceOnUse">
+              <stop offset="0" stopColor="#bef264" />
+              <stop offset="1" stopColor="#34e0ea" />
             </linearGradient>
-            <linearGradient
-              id="zipGood"
-              x1="0"
-              y1="0"
-              x2={boardW}
-              y2={boardH}
-              gradientUnits="userSpaceOnUse"
-            >
-              <stop offset="0" stopColor="#10b981" />
-              <stop offset="1" stopColor="#34d399" />
+            <linearGradient id="zipGood" x1="0" y1="0" x2={boardW} y2={boardH} gradientUnits="userSpaceOnUse">
+              <stop offset="0" stopColor="#bef264" />
+              <stop offset="1" stopColor="#a3e635" />
             </linearGradient>
+            <filter id="zipGlow" x="-30%" y="-30%" width="160%" height="160%">
+              <feGaussianBlur stdDeviation="6" result="b" />
+              <feMerge>
+                <feMergeNode in="b" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
           </defs>
 
-          <rect
-            x="0"
-            y="0"
-            width={boardW}
-            height={boardH}
-            rx="18"
-            fill="#ffffff"
-            stroke="#e4e9f1"
-            strokeWidth="2"
-          />
+          {/* board surface */}
+          <rect x="0" y="0" width={boardW} height={boardH} fill="#0b0c10" />
 
+          {/* grid */}
           {Array.from({ length: cols - 1 }, (_, i) => (
-            <line
-              key={`v${i}`}
-              x1={(i + 1) * UNIT}
-              y1="8"
-              x2={(i + 1) * UNIT}
-              y2={boardH - 8}
-              stroke="#e4e9f1"
-              strokeWidth="1.5"
-            />
+            <line key={`v${i}`} x1={(i + 1) * UNIT} y1="6" x2={(i + 1) * UNIT} y2={boardH - 6} stroke="#20242f" strokeWidth="1.5" />
           ))}
           {Array.from({ length: rows - 1 }, (_, i) => (
-            <line
-              key={`h${i}`}
-              x1="8"
-              y1={(i + 1) * UNIT}
-              x2={boardW - 8}
-              y2={(i + 1) * UNIT}
-              stroke="#e4e9f1"
-              strokeWidth="1.5"
-            />
+            <line key={`h${i}`} x1="6" y1={(i + 1) * UNIT} x2={boardW - 6} y2={(i + 1) * UNIT} stroke="#20242f" strokeWidth="1.5" />
           ))}
 
+          {/* visited tint */}
           {path.map((i) => (
             <rect
               key={`t${i}`}
@@ -284,71 +255,37 @@ export default function ZipBoard({
               width={UNIT - 6}
               height={UNIT - 6}
               rx="10"
-              fill={complete ? 'rgba(16,185,129,.10)' : 'rgba(99,102,241,.09)'}
+              fill={complete ? 'rgba(190,242,100,.12)' : 'rgba(52,224,234,.08)'}
             />
           ))}
 
+          {/* path: under-glow + main glowing cable */}
           {path.length >= 2 && (
             <>
-              <polyline
-                points={polyPoints}
-                fill="none"
-                stroke={strokeUrl}
-                strokeOpacity="0.18"
-                strokeWidth="30"
-                strokeLinejoin="round"
-                strokeLinecap="round"
-              />
-              <polyline
-                points={polyPoints}
-                fill="none"
-                stroke={strokeUrl}
-                strokeWidth="15"
-                strokeLinejoin="round"
-                strokeLinecap="round"
-              />
+              <polyline points={polyPoints} fill="none" stroke={strokeUrl} strokeOpacity="0.22" strokeWidth="30" strokeLinejoin="round" strokeLinecap="round" />
+              <polyline points={polyPoints} fill="none" stroke={strokeUrl} strokeWidth="14" strokeLinejoin="round" strokeLinecap="round" filter="url(#zipGlow)" />
             </>
           )}
           {path.length >= 1 && (
-            <circle cx={center(path[0]).x} cy={center(path[0]).y} r="8" fill={strokeUrl} />
+            <circle cx={center(path[0]).x} cy={center(path[0]).y} r="8" fill={strokeUrl} filter="url(#zipGlow)" />
           )}
 
+          {/* walls — bright bars */}
           {wallSegments.map((w, i) => (
-            <line
-              key={`w${i}`}
-              x1={w.x1}
-              y1={w.y1}
-              x2={w.x2}
-              y2={w.y2}
-              stroke="#0f172a"
-              strokeWidth="8"
-              strokeLinecap="round"
-            />
+            <line key={`w${i}`} x1={w.x1} y1={w.y1} x2={w.x2} y2={w.y2} stroke="#f0f3f8" strokeWidth="7" strokeLinecap="round" />
           ))}
 
+          {/* checkpoints — dark chips, lime ring on the next one */}
           {[...checkpoints.entries()].map(([cell, n]) => {
             const p = center(cell);
+            const isNext = cell === nextCell && !locked;
             return (
               <g key={`c${cell}`}>
-                {cell === nextCell && !locked && (
-                  <circle
-                    cx={p.x}
-                    cy={p.y}
-                    r="26"
-                    fill="none"
-                    stroke="#6366f1"
-                    strokeWidth="3"
-                    strokeDasharray="4 5"
-                  />
+                {isNext && (
+                  <circle cx={p.x} cy={p.y} r="26" fill="none" stroke="#bef264" strokeWidth="2.5" strokeDasharray="4 5" opacity="0.9" />
                 )}
-                <circle cx={p.x} cy={p.y} r="21" fill="#182031" />
-                <text
-                  x={p.x}
-                  y={p.y}
-                  dy="0.35em"
-                  textAnchor="middle"
-                  className="fill-white font-mono text-[26px] font-bold"
-                >
+                <circle cx={p.x} cy={p.y} r="21" fill="#15171e" stroke={isNext ? '#bef264' : '#333949'} strokeWidth="2" />
+                <text x={p.x} y={p.y} dy="0.35em" textAnchor="middle" className="font-mono text-[26px] font-bold" fill={isNext ? '#bef264' : '#eceef2'}>
                   {n}
                 </text>
               </g>
@@ -357,13 +294,14 @@ export default function ZipBoard({
         </svg>
       </div>
 
-      <div className="flex items-center gap-3 text-sm text-slate-500">
+      <div className="flex items-center gap-4 font-mono text-sm text-faint">
         <span className="tabular-nums">
-          <b className="text-slate-900">{path.length}</b>/{total} cells
+          <b className="text-ink">{path.length}</b>
+          <span className="text-faint">/{total}</span> cells
         </span>
         <span className="tabular-nums">
-          <b className="text-slate-900">{Math.min(hits, checkpoints.size)}</b>/
-          {checkpoints.size} numbers
+          <b className="text-lime">{Math.min(hits, checkpoints.size)}</b>
+          <span className="text-faint">/{checkpoints.size}</span> hit
         </span>
       </div>
 
@@ -372,7 +310,7 @@ export default function ZipBoard({
           type="button"
           onClick={undo}
           disabled={locked || path.length === 0}
-          className="min-h-11 flex-1 rounded-xl border border-slate-200 bg-white px-4 font-semibold text-slate-900 disabled:opacity-40"
+          className="min-h-11 flex-1 rounded-xl border border-line bg-surface-2 px-4 font-semibold text-ink transition hover:border-line-strong disabled:opacity-40"
         >
           Undo
         </button>
@@ -380,7 +318,7 @@ export default function ZipBoard({
           type="button"
           onClick={clear}
           disabled={locked || path.length === 0}
-          className="min-h-11 flex-1 rounded-xl border border-slate-200 bg-white px-4 font-semibold text-slate-900 disabled:opacity-40"
+          className="min-h-11 flex-1 rounded-xl border border-line bg-surface-2 px-4 font-semibold text-ink transition hover:border-line-strong disabled:opacity-40"
         >
           Clear
         </button>

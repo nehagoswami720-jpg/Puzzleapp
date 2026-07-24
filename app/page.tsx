@@ -22,7 +22,6 @@ export default function Home() {
   const [playing, setPlaying] = useState<PuzzleInstance<any, any> | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [lastPrompt, setLastPrompt] = useState('');
-  /** true while we're waiting on the answer to a clarifying question */
   const [awaitingClarify, setAwaitingClarify] = useState(false);
 
   const run = async (prompt: string) => {
@@ -49,8 +48,6 @@ export default function Home() {
 
       setSkill(data.skillContext);
 
-      // A vague prompt comes back with a question and no puzzles (§12.4): ask
-      // exactly once, then whatever they say next is treated as the real skill.
       if (
         data.skillContext?.needsClarification &&
         data.skillContext.clarifyingQuestion &&
@@ -97,32 +94,30 @@ export default function Home() {
   };
 
   return (
-    <main className="mx-auto flex w-full max-w-xl flex-col gap-6 px-4 py-8">
+    <main className="mx-auto flex w-full max-w-xl flex-col gap-6 px-4 pt-10 pb-12">
       <header>
-        <p className="font-mono text-[11px] tracking-[0.12em] text-slate-400 uppercase">
+        <p className="font-mono text-[11px] tracking-[0.2em] text-cyan/70 uppercase">
           Skill Puzzles
         </p>
-        <h1 className="mt-1 text-3xl font-extrabold tracking-tight text-slate-900">
+        <h1 className="mt-2 font-display text-[2rem] leading-[1.1] font-bold tracking-tight text-ink">
           {view === 'home'
             ? 'What do you want to get better at?'
             : (skill?.canonicalSkill ?? '')}
         </h1>
         {view !== 'home' && skill && (
-          <p className="mt-1 text-sm text-slate-500">Practising “{skill.rawPrompt}”</p>
+          <p className="mt-1.5 text-sm text-muted">Practising “{skill.rawPrompt}”</p>
         )}
       </header>
 
       {view === 'home' && (
         <>
           {awaitingClarify && skill?.clarifyingQuestion && (
-            <div className="rounded-3xl rounded-bl-lg border border-indigo-200 bg-indigo-50 p-4">
-              <p className="text-sm leading-relaxed text-indigo-950">
-                {skill.clarifyingQuestion}
-              </p>
+            <div className="rise rounded-2xl rounded-bl-md border border-cyan/30 bg-cyan/5 p-4">
+              <p className="text-sm leading-relaxed text-ink">{skill.clarifyingQuestion}</p>
             </div>
           )}
           {error && (
-            <p className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+            <p className="rounded-2xl border border-rose/40 bg-rose/10 p-4 text-sm text-rose">
               {error}
             </p>
           )}
@@ -137,7 +132,7 @@ export default function Home() {
             }
           />
           {!awaitingClarify && (
-            <p className="text-xs leading-relaxed text-slate-400">
+            <p className="text-xs leading-relaxed text-faint">
               Every puzzle is checked before you see it — procedural ones are verified
               solvable, and generated ones are schema-validated.
             </p>
@@ -147,14 +142,14 @@ export default function Home() {
 
       {view === 'loading' && (
         <>
-          <p className="text-sm text-slate-500">Choosing puzzles for “{lastPrompt}”…</p>
+          <p className="text-sm text-muted">Choosing puzzles for “{lastPrompt}”…</p>
           <SkeletonCards />
         </>
       )}
 
       {view === 'gallery' && (
         <>
-          <p className="text-sm text-slate-600">
+          <p className="text-sm text-muted">
             {instances.length} puzzles for this. Pick one to play.
           </p>
           <OptionGallery
@@ -167,7 +162,7 @@ export default function Home() {
           <button
             type="button"
             onClick={reset}
-            className="min-h-12 rounded-xl border border-slate-200 bg-white px-4 font-semibold text-slate-700"
+            className="min-h-12 rounded-xl border border-line bg-surface px-4 font-semibold text-muted transition hover:text-ink"
           >
             New skill
           </button>
