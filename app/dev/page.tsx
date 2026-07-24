@@ -1,14 +1,10 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import PlayCard from '@/components/PlayCard';
+import { gradeInstance } from '@/lib/client/grade';
 import { getProceduralMechanic } from '@/lib/mechanics/procedural';
-import type {
-  CatalogEntry,
-  Difficulty,
-  GradeResult,
-  PuzzleInstance,
-} from '@/lib/mechanics/types';
+import type { CatalogEntry, Difficulty, PuzzleInstance } from '@/lib/mechanics/types';
 
 const DIFFICULTIES: Difficulty[] = ['easy', 'medium', 'hard'];
 
@@ -98,18 +94,8 @@ export default function DevPage() {
     }
   };
 
-  /** Deterministic mechanics grade locally; §11's LLM-judge path arrives with open mechanics. */
-  const grade = useCallback(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    async (inst: PuzzleInstance<any, any>, answer: unknown): Promise<GradeResult> => {
-      const local = getProceduralMechanic(inst.mechanicId);
-      if (local) return local.grade(inst, answer);
-      // Multiple-choice grading is a pure index comparison — no need to round-trip.
-      const { gradeMultipleChoice } = await import('@/lib/mechanics/multipleChoice');
-      return gradeMultipleChoice(inst, answer as number);
-    },
-    [],
-  );
+  /** Deterministic grading, dispatched by mechanic id — see lib/client/grade. */
+  const grade = gradeInstance;
 
   return (
     <main className="mx-auto flex max-w-xl flex-col gap-6 px-4 py-8">

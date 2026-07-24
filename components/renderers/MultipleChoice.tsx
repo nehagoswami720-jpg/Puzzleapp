@@ -19,9 +19,11 @@ export default function MultipleChoice({
 
   return (
     <div className="flex flex-col gap-4">
-      <p className="rounded-xl border border-line bg-surface-2 p-4 text-[15px] leading-relaxed text-ink">
-        {stem}
-      </p>
+      {stem.trim() && (
+        <p className="rounded-xl border border-line bg-surface-2 p-4 text-[15px] leading-relaxed text-ink">
+          {stem}
+        </p>
+      )}
 
       <div role="radiogroup" aria-label={instance.prompt} className="flex flex-col gap-2">
         {options.map((option, i) => {

@@ -1,6 +1,7 @@
 'use client';
 
 import type { RendererProps } from '@/lib/mechanics/types';
+import ConnectionsBoard from './ConnectionsBoard';
 import MultipleChoice from './MultipleChoice';
 import SequenceInput from './SequenceInput';
 import ZipBoard from './ZipBoard';
@@ -24,6 +25,9 @@ export const RENDERED_MECHANICS = [
   'sequence',
   'spot-the-fallacy',
   'context-cloze',
+  'trivia',
+  'odd-one-out',
+  'connections',
 ] as const;
 
 export function hasRenderer(mechanicId: string): boolean {
@@ -36,9 +40,13 @@ export default function MechanicRenderer(props: AnyRendererProps) {
       return <ZipBoard {...props} />;
     case 'sequence':
       return <SequenceInput {...props} />;
+    case 'connections':
+      return <ConnectionsBoard {...props} />;
     // One MultipleChoice serves every option-picking LLM mechanic (§9.5).
     case 'spot-the-fallacy':
     case 'context-cloze':
+    case 'trivia':
+    case 'odd-one-out':
       return <MultipleChoice {...props} />;
     default:
       return (

@@ -1,11 +1,11 @@
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 import ChatInput from '@/components/ChatInput';
 import OptionGallery, { SkeletonCards } from '@/components/OptionGallery';
 import PlayShell from '@/components/PlayShell';
-import { getProceduralMechanic } from '@/lib/mechanics/procedural';
-import type { GradeResult, PuzzleInstance, SkillContext } from '@/lib/mechanics/types';
+import { gradeInstance } from '@/lib/client/grade';
+import type { PuzzleInstance, SkillContext } from '@/lib/mechanics/types';
 
 type View = 'home' | 'loading' | 'gallery' | 'play';
 
@@ -71,17 +71,8 @@ export default function Home() {
     }
   };
 
-  /** Deterministic grading (§11) — procedural mechanics can grade fully offline. */
-  const grade = useCallback(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    async (inst: PuzzleInstance<any, any>, answer: unknown): Promise<GradeResult> => {
-      const local = getProceduralMechanic(inst.mechanicId);
-      if (local) return local.grade(inst, answer);
-      const { gradeMultipleChoice } = await import('@/lib/mechanics/multipleChoice');
-      return gradeMultipleChoice(inst, answer as number);
-    },
-    [],
-  );
+  /** Deterministic grading (§11), dispatched by mechanic id — see lib/client/grade. */
+  const grade = gradeInstance;
 
   const reset = () => {
     setView('home');
