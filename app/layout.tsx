@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono, Space_Grotesk } from "next/font/google";
+import { Geist, Geist_Mono, Outfit, Press_Start_2P, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import ServiceWorker from "@/components/ServiceWorker";
 
@@ -19,6 +19,19 @@ const spaceGrotesk = Space_Grotesk({
   variable: "--font-space-grotesk",
   subsets: ["latin"],
   weight: ["500", "600", "700"],
+});
+
+// v1 (arcade) type system: Outfit for text, Press Start 2P (pixel) for splash.
+const outfit = Outfit({
+  variable: "--font-outfit-var",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+});
+
+const pressStart = Press_Start_2P({
+  variable: "--font-press-var",
+  subsets: ["latin"],
+  weight: ["400"],
 });
 
 export const metadata: Metadata = {
@@ -55,7 +68,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${spaceGrotesk.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${spaceGrotesk.variable} ${outfit.variable} ${pressStart.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">
         {children}
