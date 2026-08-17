@@ -23,9 +23,12 @@ export default function PuzzlesHome() {
         </p>
       </div>
 
-      {/* pill tab bar (Figma centred, hugs content, ~53px from the bottom) */}
-      <div className="absolute bottom-[53px] left-1/2 flex -translate-x-1/2 items-center justify-center overflow-hidden rounded-[31px] bg-[#0d0d0d] px-[24px] py-[16px]">
-        <div className="flex items-center gap-[24px]">
+      {/* pill tab bar — a full-width wrapper centres the pill via justify-center.
+          (Avoids left-1/2 + translateX(-50%) on a shrink-to-fit box, which
+          mis-centres on iOS Safari when the Outfit web-font swaps in late.)
+          Sits ~53px from the bottom. */}
+      <div className="absolute inset-x-0 bottom-[53px] flex justify-center">
+        <div className="flex items-center gap-[24px] overflow-hidden rounded-[31px] bg-[#0d0d0d] px-[24px] py-[16px]">
           {/* Puzzles — active: lime-tinted highlight, rounded-[15px] (concentric with 31) */}
           <button
             type="button"
