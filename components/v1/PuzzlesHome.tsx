@@ -11,24 +11,24 @@
 export default function PuzzlesHome() {
   return (
     <div className="fixed inset-0 bg-black font-outfit">
-      {/* header: greeting + hero heading (Figma left 24, top 91) */}
-      <div className="absolute top-[91px] left-[24px] flex w-[287px] flex-col gap-[4px]">
+      {/* header: greeting + hero heading (Figma left 24, top 41) */}
+      <div className="absolute top-[41px] left-[24px] flex w-[287px] flex-col gap-[4px]">
         <p className="text-[16px] text-[#959595]">Hey, Neha</p>
         <p className="text-[28px] font-bold tracking-[-0.84px] text-[#eceef2]">
           Are you ready to <span className="text-[#9df800]">play</span>?
         </p>
       </div>
 
-      {/* pill tab bar (Figma centred, top 755 → ~55px from the bottom) */}
-      <div className="absolute bottom-[55px] left-1/2 flex h-[64px] -translate-x-1/2 items-center justify-center overflow-hidden rounded-[31px] bg-[#0d0d0d] p-[20px]">
+      {/* pill tab bar (Figma centred, hugs content, ~29px from the bottom) */}
+      <div className="absolute bottom-[29px] left-1/2 flex -translate-x-1/2 items-center justify-center overflow-hidden rounded-[31px] bg-[#0d0d0d] p-[20px]">
         <div className="flex items-center justify-center gap-[36px]">
           <button
             type="button"
             className="flex w-[63px] flex-col items-center justify-center gap-[6px] rounded-[20px]"
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/v1/icon-puzzle.svg" alt="" width={16} height={16} className="size-[16px]" />
-            <span className="text-[12px] font-medium text-[#9df800]">Puzzles</span>
+            <img src="/v1/icon-puzzle.svg" alt="" width={24} height={24} className="size-[24px]" />
+            <span className="text-[16px] font-medium whitespace-nowrap text-[#9df800]">Puzzles</span>
           </button>
 
           <button
@@ -36,8 +36,8 @@ export default function PuzzlesHome() {
             className="flex w-[63px] flex-col items-center justify-center gap-[6px] rounded-[20px]"
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/v1/icon-star.svg" alt="" width={16} height={16} className="size-[16px]" />
-            <span className="text-[12px] text-[#5c5c5c]">Favorites</span>
+            <img src="/v1/icon-star.svg" alt="" width={24} height={24} className="size-[24px]" />
+            <span className="text-[16px] text-[#5c5c5c]">Favorites</span>
           </button>
         </div>
       </div>
