@@ -112,9 +112,11 @@ export default function Onboarding({ onContinue }: { onContinue: () => void }) {
   const hasSelection = selected.size > 0;
 
   return (
-    <div className="fixed inset-0 flex flex-col bg-black font-outfit">
-      {/* content: header + scrollable chip cloud (Figma left/right 24, top 51) */}
-      <div className="flex min-h-0 flex-1 flex-col gap-[24px] px-[24px] pt-[51px]">
+    <div className="fixed inset-0 overflow-y-auto bg-black font-outfit">
+      {/* One flowing column: header → chips → button. min-h-full keeps the button
+          pinned near the bottom when there's room; the page scrolls if the chips
+          don't fit. (Figma left/right 24, top 51.) */}
+      <div className="flex min-h-full flex-col px-[24px] pt-[51px] pb-[53px]">
         {/* header group + subtitle, gap-48 */}
         <div className="flex shrink-0 flex-col gap-[48px]">
           <div className="flex flex-col gap-[8px]">
@@ -126,8 +128,9 @@ export default function Onboarding({ onContinue }: { onContinue: () => void }) {
           <p className="text-[20px] text-[#959595]">Select one or more skills</p>
         </div>
 
-        {/* skill chips — multi-select, hug labels, wrap. Tokens: 8px / 16px gaps */}
-        <div className="flex flex-wrap gap-x-[8px] gap-y-[16px] overflow-y-auto pb-[8px]">
+        {/* skill chips — multi-select, hug labels, wrap. Tokens: 24px below the
+            header, 8px between chips, 16px between rows */}
+        <div className="mt-[24px] flex shrink-0 flex-wrap gap-x-[8px] gap-y-[16px]">
           {SKILLS.map((skill) => (
             <SkillChip
               key={skill}
@@ -137,22 +140,23 @@ export default function Onboarding({ onContinue }: { onContinue: () => void }) {
             />
           ))}
         </div>
-      </div>
 
-      {/* Continue button (113:225) — reserved at the bottom so chips never overlap it */}
-      <div className="shrink-0 px-[24px] pt-[16px] pb-[53px]">
-        <button
-          type="button"
-          onClick={onContinue}
-          disabled={!hasSelection}
-          className={`w-full rounded-[32px] px-[10px] py-[12px] text-center text-[24px] transition-colors duration-200 ${
-            hasSelection
-              ? 'bg-[#9df800] font-medium text-[#1e1e1e]'
-              : 'pointer-events-none bg-[#575757] font-normal text-[#959595]'
-          }`}
-        >
-          Continue
-        </button>
+        {/* Continue button (113:225) — mt-auto pins it to the bottom when there's
+            room; pt-[48px] guarantees at least 48px between it and the chips */}
+        <div className="mt-auto shrink-0 pt-[48px]">
+          <button
+            type="button"
+            onClick={onContinue}
+            disabled={!hasSelection}
+            className={`w-full rounded-[32px] px-[10px] py-[12px] text-center text-[24px] transition-colors duration-200 ${
+              hasSelection
+                ? 'bg-[#9df800] font-medium text-[#1e1e1e]'
+                : 'pointer-events-none bg-[#575757] font-normal text-[#959595]'
+            }`}
+          >
+            Continue
+          </button>
+        </div>
       </div>
     </div>
   );
