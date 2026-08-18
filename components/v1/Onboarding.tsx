@@ -24,20 +24,22 @@ import { useState } from 'react';
  *   • Variant2 (113:229) — enabled:  #9df800 bg, #1e1e1e text (Outfit Medium)
  */
 
-// Skills offered on first run. "Critical thinking" is the one already in Figma.
+// Skills offered on first run. Shortlisted to the ones the puzzle catalog can
+// actually generate for — each maps to real mechanics via the planner's
+// sub-skill vocabulary (lib/mechanics/subskills.ts). Skills with no backing
+// mechanic (Focus, Lateral thinking, Attention to detail, Decision making) are
+// intentionally excluded so onboarding never promises puzzles we can't build.
 const SKILLS = [
-  'Critical thinking',
-  'Logical reasoning',
-  'Pattern recognition',
-  'Memory',
-  'Focus',
-  'Problem solving',
-  'Spatial reasoning',
-  'Vocabulary',
-  'Mental math',
-  'Lateral thinking',
-  'Attention to detail',
-  'Decision making',
+  'Critical thinking', // spot-the-fallacy, hidden-assumption, what-follows, sudoku
+  'Logical reasoning', // sudoku, what-follows, zip
+  'Pattern recognition', // sequence, what-comes-next, connections, odd-one-out
+  'Spatial reasoning', // zip, maze
+  'Planning', // zip, maze, make-target
+  'Mental math', // mental-math, make-target, estimation
+  'Memory', // memory, anagram, trivia
+  'Vocabulary', // context-cloze, anagram, synonym-match, real-word
+  'Verbal reasoning', // verbal-analogy, connections, synonym-match
+  'General knowledge', // trivia, estimation
 ];
 
 function PlusIcon() {
