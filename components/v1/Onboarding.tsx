@@ -83,14 +83,14 @@ function SkillChip({
       type="button"
       onClick={onToggle}
       aria-pressed={selected}
-      className={`flex items-center justify-center gap-[8px] rounded-[38px] p-[12px] transition-colors duration-200 ${
+      className={`flex items-center justify-center gap-[6px] rounded-[38px] px-[14px] py-[10px] transition-colors duration-200 ${
         selected
           ? 'bg-gradient-to-r from-[#430cc1] to-[#9266f4] text-[#eceef2]'
           : 'bg-transparent text-[#a57eff] shadow-[inset_0_0_0_1px_#a57eff]'
       }`}
     >
       {selected ? <CheckIcon /> : <PlusIcon />}
-      <span className={`text-[16px] whitespace-nowrap ${selected ? 'font-medium' : 'font-normal'}`}>
+      <span className={`text-[14px] whitespace-nowrap ${selected ? 'font-medium' : 'font-normal'}`}>
         {label}
       </span>
     </button>
