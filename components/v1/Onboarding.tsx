@@ -3,23 +3,25 @@
 import { useState } from 'react';
 
 /**
- * v1 Onboarding — faithful build of the Figma "Onboarding" frame (97:144) and
- * its "Skill component" (97:179), which has two variants:
- *   • Default   (97:178) — transparent, purple border #a57eff, "+" icon,
- *                          purple label (Outfit Regular)
- *   • Variant2  (97:180) — gradient #430cc1 → #9266f4, check icon, white label
- *                          (Outfit Medium)
- * The prototype wires a chip's tap to CHANGE_TO its selected variant, so these
- * are multi-select toggles.
+ * v1 Onboarding — faithful build of the Figma "Onboarding" frame (97:144),
+ * the "Skill component" (97:179), and the "Button component" (113:225).
  *
- * The frame ships one chip ("Critical thinking"); per the brief we add more
- * skills using the same component. Chips hug their labels (the component's
- * fixed w-[112px] label was sized for "Critical thinking" and would leave big
- * gaps on shorter names), and wrap into a cloud.
+ * Skill chips have two variants:
+ *   • Default  (97:178) — transparent, purple outline #a57eff, "+" icon,
+ *                         purple label (Outfit Regular)
+ *   • Variant2 (97:180) — gradient #430cc1 → #9266f4, check icon, white label
+ *                         (Outfit Medium)
+ * They're multi-select toggles. Per the brief the chips HUG their labels
+ * (widths vary by skill) rather than the component's fixed 158px grid slot,
+ * and wrap using the Figma spacing tokens: 8px between chips, 16px between rows.
  *
- * NOTE: the "Continue" button is NOT in the Figma yet — the frame has no way to
- * advance to home. It's added here (app lime accent) so the loading → onboarding
- * → home flow works; swap it for the designed version when ready.
+ * The outline is an inset box-shadow (not a border) so the selected gradient
+ * fills edge-to-edge with no seam between fill and stroke, and toggling never
+ * changes a chip's size.
+ *
+ * Continue button (113:225) has two variants:
+ *   • Default  (113:227) — disabled: #575757 bg, #959595 text (Outfit Regular)
+ *   • Variant2 (113:229) — enabled:  #9df800 bg, #1e1e1e text (Outfit Medium)
  */
 
 // Skills offered on first run. "Critical thinking" is the one already in Figma.
@@ -81,10 +83,10 @@ function SkillChip({
       type="button"
       onClick={onToggle}
       aria-pressed={selected}
-      className={`flex items-center justify-center gap-[8px] rounded-[38px] border p-[12px] transition-colors duration-200 ${
+      className={`flex items-center justify-center gap-[8px] rounded-[38px] p-[12px] transition-colors duration-200 ${
         selected
-          ? 'border-transparent bg-gradient-to-r from-[#430cc1] to-[#9266f4] text-[#eceef2]'
-          : 'border-[#a57eff] bg-transparent text-[#a57eff]'
+          ? 'bg-gradient-to-r from-[#430cc1] to-[#9266f4] text-[#eceef2]'
+          : 'bg-transparent text-[#a57eff] shadow-[inset_0_0_0_1px_#a57eff]'
       }`}
     >
       {selected ? <CheckIcon /> : <PlusIcon />}
@@ -110,11 +112,11 @@ export default function Onboarding({ onContinue }: { onContinue: () => void }) {
   const hasSelection = selected.size > 0;
 
   return (
-    <div className="fixed inset-0 bg-black font-outfit">
-      {/* Container (Figma left 24, top 51, w 354), flex-col gap-24 */}
-      <div className="absolute top-[51px] left-[24px] flex w-[354px] flex-col gap-[24px]">
+    <div className="fixed inset-0 flex flex-col bg-black font-outfit">
+      {/* content: header + scrollable chip cloud (Figma left/right 24, top 51) */}
+      <div className="flex min-h-0 flex-1 flex-col gap-[24px] px-[24px] pt-[51px]">
         {/* header group + subtitle, gap-48 */}
-        <div className="flex flex-col gap-[48px]">
+        <div className="flex shrink-0 flex-col gap-[48px]">
           <div className="flex flex-col gap-[8px]">
             <p className="text-[20px] text-[#959595]">Hey there,</p>
             <p className="text-[32px] leading-[34px] font-bold tracking-[-0.96px] text-[#eceef2]">
@@ -124,8 +126,8 @@ export default function Onboarding({ onContinue }: { onContinue: () => void }) {
           <p className="text-[20px] text-[#959595]">Select one or more skills</p>
         </div>
 
-        {/* skill chips — multi-select, wrap into a cloud */}
-        <div className="flex flex-wrap gap-[12px]">
+        {/* skill chips — multi-select, hug labels, wrap. Tokens: 8px / 16px gaps */}
+        <div className="flex flex-wrap gap-x-[8px] gap-y-[16px] overflow-y-auto pb-[8px]">
           {SKILLS.map((skill) => (
             <SkillChip
               key={skill}
@@ -137,17 +139,21 @@ export default function Onboarding({ onContinue }: { onContinue: () => void }) {
         </div>
       </div>
 
-      {/* Continue — NOT in Figma; added so the flow can reach home. */}
-      <button
-        type="button"
-        onClick={onContinue}
-        disabled={!hasSelection}
-        className={`absolute inset-x-[24px] bottom-[53px] rounded-[38px] bg-[#9df800] py-[16px] text-center text-[16px] font-medium text-black transition-opacity duration-200 ${
-          hasSelection ? 'opacity-100' : 'pointer-events-none opacity-40'
-        }`}
-      >
-        Continue
-      </button>
+      {/* Continue button (113:225) — reserved at the bottom so chips never overlap it */}
+      <div className="shrink-0 px-[24px] pt-[16px] pb-[53px]">
+        <button
+          type="button"
+          onClick={onContinue}
+          disabled={!hasSelection}
+          className={`w-full rounded-[32px] px-[10px] py-[12px] text-center text-[24px] transition-colors duration-200 ${
+            hasSelection
+              ? 'bg-[#9df800] font-medium text-[#1e1e1e]'
+              : 'pointer-events-none bg-[#575757] font-normal text-[#959595]'
+          }`}
+        >
+          Continue
+        </button>
+      </div>
     </div>
   );
 }
