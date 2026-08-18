@@ -85,7 +85,7 @@ function SkillChip({
       aria-pressed={selected}
       className={`flex items-center justify-center gap-[6px] rounded-[38px] px-[14px] py-[10px] transition-colors duration-200 ${
         selected
-          ? 'bg-gradient-to-r from-[#430cc1] to-[#9266f4] text-[#eceef2]'
+          ? 'bg-[linear-gradient(135deg,#5b16d0_0%,#8b3ffc_45%,#d64bff_100%)] text-[#eceef2] shadow-[0_2px_18px_-4px_rgba(168,85,247,0.7)]'
           : 'bg-transparent text-[#a57eff] shadow-[inset_0_0_0_1px_#a57eff]'
       }`}
     >
